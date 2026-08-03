@@ -1,10 +1,10 @@
 def filter_by_state(transactions: list, state: str = "EXECUTED") -> list:
     """фильтруем по "state" """
-    result_ = []
+    result = []
     for num in transactions:
         if num["state"] == state:
-            result_.append(num)
-    return result_
+            result.append(num)
+    return result
 
 
 def sort_by_date(transactions: list) -> list:
