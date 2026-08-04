@@ -1,3 +1,4 @@
+
 def filter_by_state(transactions: list, state: str = "EXECUTED") -> list:
     """фильтруем по "state" """
     result = []
