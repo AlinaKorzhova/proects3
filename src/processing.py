@@ -1,16 +1,16 @@
 
 def filter_by_state(transactions: list, state: str = "EXECUTED") -> list:
-    """фильтруем по "state" """
+    """Функция фильтрует по "state" """
     result = []
-    for num in transactions:
-        if num["state"] == state:
-            result.append(num)
+    for transaction in transactions:
+        if transaction["state"] == state:
+            result.append(transaction)
     return result
 
 
-def sort_by_date(transactions: list) -> list:
-    """функция сортирует по дате"""
-    sort_func = sorted(transactions, key=lambda x: x["date"], reverse=True)
+def sort_by_date(transactions: list, reverse: str =True) -> list:
+    """Функция сортирует по дате"""
+    sort_func = sorted(transactions, key=lambda x: x["date"])
     return sort_func
 
 
