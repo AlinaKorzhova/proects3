@@ -8,9 +8,9 @@ def filter_by_state(transactions: list, state: str = "EXECUTED") -> list:
     return result
 
 
-def sort_by_date(transactions: list, reverse: str =True) -> list:
+def sort_by_date(transactions: list) -> list:
     """Функция сортирует по дате"""
-    sort_func = sorted(transactions, key=lambda x: x["date"])
+    sort_func = sorted(transactions, key=lambda x: x["date"], reverse=True)
     return sort_func
 
 
