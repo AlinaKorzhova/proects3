@@ -1,17 +1,23 @@
 
 def filter_by_state(transactions: list, state: str = "EXECUTED") -> list:
     """Функция фильтрует по "state" """
-    result = []
-    for transaction in transactions:
-        if transaction["state"] == state:
-            result.append(transaction)
-    return result
+    try:
+        result = []
+        for transaction in transactions:
+            if transaction["state"] == state:
+                result.append(transaction)
+        return result
+    except ValueError:
+        return "Неверный формат данных"
 
 
 def sort_by_date(transactions: list, reverse: bool =True) -> list:
     """Функция сортирует по дате"""
-    sort_func = sorted(transactions, key=lambda x: x["date"], reverse=reverse)
-    return sort_func
+    try:
+        sort_func = sorted(transactions, key=lambda x: x["date"], reverse=reverse)
+        return sort_func
+    except ValueError:
+        return "Неверный формат данных"
 
 
 if __name__ == "__main__":
