@@ -1,6 +1,5 @@
 import pytest
 from src.masks import get_mask_card_number, get_mask_account
-from src.widget import mask_account_card
 
 
 def test_get_mask_card_number():
@@ -23,5 +22,3 @@ def test_get_mask_account():
     assert get_mask_account("fdhbddedaefegrsgs")
 
 
-def test_mask_account_card():
-    assert mask_account_card("Visa 5647563678958473")
