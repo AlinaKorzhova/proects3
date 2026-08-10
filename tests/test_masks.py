@@ -9,7 +9,7 @@ def test_get_mask_card_number():
 
     assert get_mask_card_number("")
 
-    assert get_mask_card_number("dfssdfghhjjjgffddsddd")
+    assert get_mask_card_number("dfssdfghhjjjgffdsddd")
 
 
 def test_get_mask_account():
@@ -19,6 +19,6 @@ def test_get_mask_account():
 
     assert get_mask_account("")
 
-    assert get_mask_account("fdhbddedaefegrsgs")
+    assert get_mask_account("fdhbdedaefegrsgs")
 
 
