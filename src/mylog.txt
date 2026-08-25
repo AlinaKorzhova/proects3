@@ -1,0 +1,3 @@
+my_function ok
+my_function error: my_function() missing 2 required positional arguments: 'x' and 'y', Inputs: args=(), kwargs={}
+my_function ok
