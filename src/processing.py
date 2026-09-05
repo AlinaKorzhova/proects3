@@ -1,5 +1,7 @@
+from typing import Any
 
-def filter_by_state(transactions: list, state: str = "EXECUTED") -> list:
+
+def filter_by_state(transactions: list, state: str = "EXECUTED") -> list[Any] | str:
     """Функция фильтрует по "state" """
     try:
         result = []
@@ -11,8 +13,10 @@ def filter_by_state(transactions: list, state: str = "EXECUTED") -> list:
         return "Неверный формат данных"
 
 
-def sort_by_date(transactions: list, reverse: bool =True) -> list:
-    """Функция сортирует по дате"""
+def sort_by_date(transactions: list, reverse: bool =True) -> list[Any] | str:
+    """Функция сортирует по дате
+    :rtype: list[Any] | str
+    """
     try:
         sort_func = sorted(transactions, key=lambda x: x["date"], reverse=reverse)
         return sort_func
