@@ -846,6 +846,17 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<8)"]
 
 [[package]]
+name = "srt"
+version = "3.5.3"
+description = "A tiny library for parsing, modifying, and composing SRT files."
+optional = false
+python-versions = ">=2.7"
+groups = ["main"]
+files = [
+    {file = "srt-3.5.3.tar.gz", hash = "sha256:4884315043a4f0740fd1f878ed6caa376ac06d70e135f306a6dc44632eed0cc0"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.16.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
@@ -878,4 +889,4 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "98d024e407c7e0169f16ead172e510a120c0adea5c5b1c6398f6dd20ea15b6b5"
+content-hash = "4332fe9f3752ac1dc909be3df624be56ef71b72ac54f9098c19d733a486cf0d3"
