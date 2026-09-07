@@ -17,6 +17,7 @@ def read_json_file(file_path: str = "../data/operations.json") -> List[Dict]:
     """
     try:
         logger.info(f"Читается operations.json ")
+        logger.debug(f"Открытие файла по пути: {file_path}")
         with open(file_path, encoding="utf-8") as file:
             data = json.load(file)
 

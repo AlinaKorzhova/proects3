@@ -11,6 +11,7 @@ logger.addHandler(file_handler)
 def get_mask_card_number(number: str) -> str:
     """Маскирует номер карты 1111 11** **** 1111"""
     logger.info("Длину карты {len(number) == 16} равна 16 символов")
+    logger.debug(f"Входной номер карты: {number}")
     if len(number) == 16:
         return number[:4] + " " + number[4:6] + "** **** " + number[-4:]
     logger.error("Неверный формат данных")
@@ -20,6 +21,7 @@ def get_mask_card_number(number: str) -> str:
 def get_mask_account(account_number: str) -> str:
     """Маскирует номер счета **1111"""
     logger.info("Длина счета {len(account_number) >= 4} больше 4 символов")
+    logger.debug(f"Входной номер счета: {account_number}")
     if len(account_number) >= 4:
         return "**" + account_number[-4:]
     logger.error("Неверный формат данных")
