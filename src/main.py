@@ -3,113 +3,12 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-
-
-# ─── Чтение данных ───────────────────────────────────────────
-
-def load_transactions_from_json(filepath: str) -> List[Dict[str, Any]]:
-    """Читает транзакции из JSON-файла."""
-    with open(filepath, encoding="utf-8") as f:
-        return json.load(f)
-
-
-def load_transactions_from_csv(filepath: str) -> List[Dict[str, Any]]:
-    """Читает транзакции из CSV-файла (через pandas)."""
-    import pandas as pd
-    df = pd.read_csv(filepath)
-    return df.to_dict(orient="records")
-
-
-def load_transactions_from_xlsx(filepath: str) -> List[Dict[str, Any]]:
-    """Читает транзакции из XLSX-файла (через pandas)."""
-    import pandas as pd
-    df = pd.read_excel(filepath)
-    return df.to_dict(orient="records")
-
-
-# ─── Фильтрация ──────────────────────────────────────────────
-
-VALID_STATUSES = {"EXECUTED", "CANCELED", "PENDING"}
-
-
-def filter_by_status(
-    transactions: List[Dict[str, Any]], status: str
-) -> List[Dict[str, Any]]:
-    """Фильтрует по статусу (регистронезависимо)."""
-    status_upper = status.strip().upper()
-    return [tx for tx in transactions if tx.get("state", "").upper() == status_upper]
-
-
-def filter_by_ruble(transactions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Оставляет только рублёвые транзакции."""
-    return [tx for tx in transactions if tx.get("currency_code", "") == "RUB"]
-
-
-def filter_by_word(
-    transactions: List[Dict[str, Any]], word: str
-) -> List[Dict[str, Any]]:
-    """Фильтрует по слову в описании (регистронезависимо)."""
-    word_lower = word.lower()
-    return [
-        tx
-        for tx in transactions
-        if isinstance(tx.get("description", ""), str)
-        and word_lower in tx["description"].lower()
-    ]
-
-
-# ─── Сортировка ──────────────────────────────────────────────
-
-def sort_by_date(
-    transactions: List[Dict[str, Any]], reverse: bool = False
-) -> List[Dict[str, Any]]:
-    """Сортирует по дате. reverse=True — по убыванию."""
-
-    def parse_date(tx: Dict[str, Any]) -> datetime:
-        date_str = tx.get("date", "")
-        if isinstance(date_str, datetime):
-            return date_str
-        if date_str.endswith("Z"):
-            date_str = date_str[:-1] + "+00:00"
-        return datetime.fromisoformat(date_str)
-
-    return sorted(transactions, key=parse_date, reverse=reverse)
-
-
-# ─── Форматирование вывода ──────────────────────────────────
-
-def mask_account(account: str) -> str:
-    """
-    Маскирует номер счёта или карты.
-    Для счёта: Счет **1234
-    Для карты: Visa Platinum 1234 56** **** 7890
-    """
-    if not account:
-        return ""
-
-    # Если начинается с "Счет" — маскируем как счёт
-    if account.lower().startswith("счет"):
-        number = account.replace("Счет", "").replace("счет", "").strip()
-        return f"Счет **{number[-4:]}" if len(number) >= 4 else f"Счет **{number}"
-
-    # Иначе — это карта: "Visa Platinum 7492 6511 6651 7202"
-    parts = account.split()
-    if len(parts) < 2:
-        return account
-
-    # Тип карты — это всё, кроме последней части (номера)
-    card_type = " ".join(parts[:-1])
-    number = parts[-1]
-
-    if len(number) >= 16:
-        # Формат: 1234 56** **** 7890
-        masked = f"{number[:4]} {number[4:6]}** **** {number[-4:]}"
-    elif len(number) >= 4:
-        masked = f"{number[:4]} **{number[-2:]}"
-    else:
-        masked = number
-
-    return f"{card_type} {masked}"
+from src.utils import read_json_file
+from src.pandas_csv import open_csv_reader, open_excel_reader
+from src.processing import filter_by_state, sort_by_date
+from src.transaction_utils import process_bank_search
+from src.widget import mask_account_card
+from src.external_api import function
 
 
 def format_amount(transaction: Dict[str, Any]) -> str:
@@ -140,11 +39,11 @@ def format_transaction(transaction: Dict[str, Any]) -> str:
     to_account = transaction.get("to", "")
 
     if from_account and to_account:
-        accounts_line = f"{mask_account(from_account)} -> {mask_account(to_account)}"
+        accounts_line = f"{mask_account_card(from_account)} -> {mask_account_card(to_account)}"
     elif to_account:
-        accounts_line = mask_account(to_account)
+        accounts_line = mask_account_card(to_account)
     elif from_account:
-        accounts_line = mask_account(from_account)
+        accounts_line = mask_account_card(from_account)
     else:
         accounts_line = ""
 
@@ -170,6 +69,7 @@ def ask_yes_no(prompt: str) -> bool:
             return False
         print('Введите "Да" или "Нет"')
 
+VALID_STATUSES = ["EXECUTED", "CANCELED", "PENDING"]
 
 def ask_status() -> str:
     """Запрашивает статус у пользователя с проверкой корректности."""
@@ -208,24 +108,24 @@ def main() -> None:
         if choice == "1":
             print("Для обработки выбран JSON-файл.")
             filepath = input("Введите путь к файлу: ").strip()
-            transactions = load_transactions_from_json(filepath)
+            transactions = read_json_file(filepath)
             break
         elif choice == "2":
             print("Для обработки выбран CSV-файл.")
             filepath = input("Введите путь к файлу: ").strip()
-            transactions = load_transactions_from_csv(filepath)
+            transactions = open_csv_reader(filepath)
             break
         elif choice == "3":
             print("Для обработки выбран XLSX-файл.")
             filepath = input("Введите путь к файлу: ").strip()
-            transactions = load_transactions_from_xlsx(filepath)
+            transactions = open_excel_reader(filepath)
             break
         else:
             print("Неверный пункт меню. Введите 1, 2 или 3.")
 
     # 2. Фильтрация по статусу
     status = ask_status()
-    transactions = filter_by_status(transactions, status)
+    transactions = filter_by_state(transactions, status)
 
     # 3. Сортировка по дате
     if ask_yes_no("Отсортировать операции по дате? Да/Нет\n"):
@@ -243,14 +143,14 @@ def main() -> None:
 
     # 4. Только рублёвые
     if ask_yes_no("Выводить только рублевые транзакции? Да/Нет\n"):
-        transactions = filter_by_ruble(transactions)
+        transactions = function(transactions)
 
     # 5. Фильтр по слову в описании
     if ask_yes_no(
         "Отфильтровать список транзакций по определенному слову в описании? Да/Нет\n"
     ):
         word = input("Введите слово для поиска: ").strip()
-        transactions = filter_by_word(transactions, word)
+        transactions = process_bank_search(transactions, word)
 
     # 6. Вывод результата
     print("Распечатываю итоговый список транзакций...\n")
