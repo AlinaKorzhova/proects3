@@ -96,6 +96,18 @@ jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 uvloop = ["uvloop (>=0.15.2) ; sys_platform != \"win32\"", "winloop (>=0.5.0) ; sys_platform == \"win32\""]
 
 [[package]]
+name = "categories"
+version = "0.3.8"
+description = ""
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "categories-0.3.8-py3-none-any.whl", hash = "sha256:8e16319df3db2d607f474f63cc56a0461a9ea52541ec3e10a5295b24d676fb0e"},
+    {file = "categories-0.3.8.tar.gz", hash = "sha256:55ecb6b2fdd313425670d180a2b182305d9f585efecfdc8565c9ac2d3e45c056"},
+]
+
+[[package]]
 name = "certifi"
 version = "2026.6.17"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -1181,4 +1193,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "7ec3e7cb49985fb7a23b3495f4e8f9904ed206f1dc5de9931361e07008753842"
+content-hash = "b8ecdee587146fe96e4ab5ba83939d9d041413149aca573e2476616df0211e37"
