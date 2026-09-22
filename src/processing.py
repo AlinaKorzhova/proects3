@@ -1,12 +1,12 @@
 from typing import Any
 
 
-def filter_by_state(transactions: list, state: str = "EXECUTED") -> list[Any] | str:
+def filter_by_state(transactions: List[Dict[str, Any]], state: str = "CANCELED") -> List[Dict[str, Any]]:
     """Функция фильтрует по "state" """
     try:
         result = []
         for transaction in transactions:
-            if transaction["state"] == state:
+            if transaction.get("state") == state:
                 result.append(transaction)
         return result
     except ValueError:
