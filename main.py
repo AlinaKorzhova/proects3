@@ -8,16 +8,31 @@ from src.pandas_csv import open_csv_reader, open_excel_reader
 from src.processing import filter_by_state, sort_by_date
 from src.transaction_utils import process_bank_search
 from src.widget import mask_account_card
-from src.external_api import function
 
+
+def filter_transactions_by_currency(transactions, currency_code):
+    currency_code = currency_code.strip().upper()
+    result = []
+    for t in transactions:
+        op_amount = t.get("operationAmount", {})
+        curr = op_amount.get("currency", {}).get("code", "")
+        if curr == currency_code:
+            result.append(t)
+    return result
+
+
+def get_amount_and_currency(transaction: Dict[str, Any]):
+    op = transaction.get("operationAmount", {})
+    amount = op.get("amount", "")
+    code = op.get("currency", {}).get("code", "")
+    return amount, code
 
 def format_amount(transaction: Dict[str, Any]) -> str:
-    """Форматирует сумму с валютой: 40542 руб."""
-    amount = transaction.get("amount", "")
-    currency = transaction.get("currency_code", "")
+    amount, currency = get_amount_and_currency(transaction)
     currency_map = {"RUB": "руб.", "USD": "USD", "EUR": "EUR"}
     currency_name = currency_map.get(currency, currency)
     return f"{amount} {currency_name}"
+
 
 
 def format_transaction(transaction: Dict[str, Any]) -> str:
@@ -107,28 +122,28 @@ def main() -> None:
         choice = input().strip()
         if choice == "1":
             print("Для обработки выбран JSON-файл.")
-            filepath = input("Введите путь к файлу: ").strip()
-            transactions = read_json_file(filepath)
+            file_path = read_json_file("../data/operations.json")
             break
         elif choice == "2":
             print("Для обработки выбран CSV-файл.")
-            filepath = input("Введите путь к файлу: ").strip()
-            transactions = open_csv_reader(filepath)
+            file_path = open_csv_reader("../data/transactions.csv")
             break
         elif choice == "3":
             print("Для обработки выбран XLSX-файл.")
-            filepath = input("Введите путь к файлу: ").strip()
-            transactions = open_excel_reader(filepath)
+            file_path = open_excel_reader("../data/transactions_excel.xlsx")
             break
         else:
             print("Неверный пункт меню. Введите 1, 2 или 3.")
+    print(f"После загрузки: {len(transactions)} транзакций")
 
     # 2. Фильтрация по статусу
     status = ask_status()
-    transactions = filter_by_state(transactions, status)
+    transactions = filter_by_state(file_path, state=status)
+    print(f"После фильтрации по статусу: {len(transactions)}")
 
     # 3. Сортировка по дате
     if ask_yes_no("Отсортировать операции по дате? Да/Нет\n"):
+        print(f"После сортировки по дате: {len(transactions)}")
         while True:
             order = input(
                 "Отсортировать по возрастанию или по убыванию?\n"
@@ -140,20 +155,23 @@ def main() -> None:
                 transactions = sort_by_date(transactions, reverse=True)
                 break
             print('Введите "по возрастанию" или "по убыванию"')
+            print(f"После сортировки убывания\возрастания: {len(transactions)}")
 
     # 4. Только рублёвые
     if ask_yes_no("Выводить только рублевые транзакции? Да/Нет\n"):
-        transactions = function(transactions)
+        transactions = filter_transactions_by_currency(transactions, "rub")
+        print(f"Транзакций с рублями: {len(transactions)}")
 
     # 5. Фильтр по слову в описании
     if ask_yes_no(
         "Отфильтровать список транзакций по определенному слову в описании? Да/Нет\n"
     ):
-        word = input("Введите слово для поиска: ").strip()
+        word = input("Введите слово для поиска: ").lower()
         transactions = process_bank_search(transactions, word)
+        print(f"фильтр по слову: {len(transactions)}")
 
     # 6. Вывод результата
-    print("Распечатываю итоговый список транзакций...\n")
+    print(f"Распечатываю итоговый список транзакций...\n")
     print(f"Всего банковских операций в выборке: {len(transactions)}\n")
 
     if not transactions:
